@@ -3,6 +3,8 @@ services:
     build: .
     # image: ghcr.io/nodebb/nodebb:latest
     restart: unless-stopped
+    environment:
+      FORCE_RECREATE: 1
     ports:
       - '4567:4567' # comment this out if you don't want to expose NodeBB to the host, or change the first number to any port you want
     volumes:
@@ -20,9 +22,12 @@ services:
       MONGO_INITDB_ROOT_USERNAME: nodebb
       MONGO_INITDB_ROOT_PASSWORD: nodebb
       MONGO_INITDB_DATABASE: nodebb
+      FORCE_RECREATE: 1
     volumes:
       - mongo-data:/data/db
       - ./install/docker/mongodb-user-init.js:/docker-entrypoint-initdb.d/user-init.js
+    profiles:
+      - mongo
   redis:
     image: redis:8.6.2-alpine
     restart: unless-stopped
@@ -47,43 +52,26 @@ services:
 
 volumes:
   mongo-data:
-    driver: local
-    driver_opts:
-      o: bind
-      type: none
-      device: ./.docker/database/mongo/data
-
   redis-data:
-    driver: local
-    driver_opts:
-      o: bind
-      type: none
-      device: ./.docker/database/redis
-
   postgres-data:
-    driver: local
-    driver_opts:
-      o: bind
-      type: none
-      device: ./.docker/database/postgresql/data
 
   nodebb-build:
     driver: local
     driver_opts:
       o: bind
       type: none
-      device: ./.docker/build
+      device: ../.docker/build
 
   nodebb-uploads:
     driver: local
     driver_opts:
       o: bind
       type: none
-      device: ./.docker/public/uploads
+      device: ../.docker/public/uploads
 
   nodebb-config:
     driver: local
     driver_opts:
       o: bind
       type: none
-      device: ./.docker/config
+      device: ../.docker/config
