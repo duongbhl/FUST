@@ -49,8 +49,8 @@ sudo sh get-docker.sh
 
 # Install Git and clone your repository
 sudo apt install -y git
-git clone https://github.com/YOUR_USERNAME/FUST.git
-cd FUST
+git clone https://github.com/duongbhl/FUST.git -b hai_nodebb
+cd FUST/
 ```
 
 *(Note: Replace the github URL with your actual repository url if you pushed this code to GitHub, or upload the files via SCP/SFTP).*
