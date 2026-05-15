@@ -2,13 +2,29 @@ name: fust_app
 include:
   - path: NodeBB/docker-compose.yml
 
+services:
+  caddy:
+    image: caddy:2.11.3-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      - DOMAIN=${DOMAIN:-localhost}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+
 volumes:
   # MongoDB, Redis, and Postgres require native Linux filesystem features (locking/permissions).
-  # We use standard named volumes (managed by Docker) to avoid 'Operation not permitted' 
+  # We use standard named volumes (managed by Docker) to avoid 'Operation not permitted'
   # errors on NTFS/FUSE partitions.
   mongo-data:
   redis-data:
   postgres-data:
+  caddy_data:
+  caddy_config:
 
   # Assets like uploads and config can safely remain as bind mounts for easy access.
   nodebb-build:

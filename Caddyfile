@@ -1,0 +1,9 @@
+# Caddyfile
+# The $DOMAIN environment variable is used to configure the domain name.
+# Caddy will automatically provision a Let's Encrypt SSL certificate for this domain.
+
+{$DOMAIN:localhost} {
+	# Reverse proxy all requests to the NodeBB container
+	# Caddy automatically handles WebSockets and X-Forwarded-* headers natively!
+	reverse_proxy nodebb:4567
+}
