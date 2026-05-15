@@ -25,6 +25,7 @@ volumes:
   postgres-data:
   caddy_data:
   caddy_config:
+  nodebb_node_modules:
 
   # Assets like uploads and config can safely remain as bind mounts for easy access.
   nodebb-build:
