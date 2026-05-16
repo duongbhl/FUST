@@ -64,17 +64,14 @@ copy_or_link_files() {
       ;;
   esac
 
-  # Check if source and destination files are the same
+  # Check if source and destination files are the same (using -L to resolve symlinks)
   if [ -f "$src_dir/package.json" ]; then
-    if [ "$(realpath "$src_dir/package.json" 2>/dev/null)" != "$(realpath "$dest_dir/package.json" 2>/dev/null)" ] || [ "$OVERRIDE_UPDATE_LOCK" = true ]; then
-      cp "$src_dir/package.json" "$dest_dir/package.json"
-    fi
+    # We want to compare the actual content, and ensure the config dir gets the NEWEST version from the image
+    cp -f "$src_dir/package.json" "$dest_dir/package.json"
   fi
 
   if [ -f "$src_dir/$lock_file" ]; then
-    if [ "$(realpath "$src_dir/$lock_file" 2>/dev/null)" != "$(realpath "$dest_dir/$lock_file" 2>/dev/null)" ] || [ "$OVERRIDE_UPDATE_LOCK" = true ]; then
-      cp "$src_dir/$lock_file" "$dest_dir/$lock_file"
-    fi
+    cp -f "$src_dir/$lock_file" "$dest_dir/$lock_file"
   fi
 
   # Remove unnecessary lock files in src_dir
@@ -247,9 +244,19 @@ install_additional_plugins() {
 main() {
   set_defaults
   
+  # Ensure package.json is present in the root (handles bind mounts)
   if [ ! -f /usr/src/app/package.json ] && [ -f /usr/src/app/install/package.json ]; then
-    echo "Copying package.json from install/ to root (likely missing due to bind mount)..."
+    echo "Restoring package.json from install/ to root..."
     cp /usr/src/app/install/package.json /usr/src/app/package.json
+  fi
+
+  # Inject the dynamic URL into setup.json if it exists and we have a URL
+  if [ -f /usr/src/app/setup.json ] && [ -n "$url" ]; then
+    echo "Injecting URL $url into setup.json..."
+    # Use sed to add or update the url field in setup.json
+    sed -i "s|\"url\": \".*\"|\"url\": \"$url\"|g" /usr/src/app/setup.json
+    # If url wasn't there, add it (basic JSON injection)
+    grep -q "\"url\":" /usr/src/app/setup.json || sed -i "2i \    \"url\": \"$url\"," /usr/src/app/setup.json
   fi
 
   check_directory "$CONFIG_DIR"
