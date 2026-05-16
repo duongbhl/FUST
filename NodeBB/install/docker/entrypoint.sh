@@ -8,6 +8,7 @@ if [ "$(id -u)" = "0" ]; then
   CONFIG_DIR="${CONFIG_DIR:-/opt/config}"
   echo "Running as root, fixing permissions for $USER..."
   chown -R "$USER:$USER" /usr/src/app "$CONFIG_DIR"
+  chmod +x /usr/src/app/nodebb
   exec su-exec "$USER" "$0" "$@"
 fi
 
