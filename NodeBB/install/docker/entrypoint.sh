@@ -237,6 +237,12 @@ install_additional_plugins() {
 # Main function
 main() {
   set_defaults
+  
+  if [ ! -f /usr/src/app/package.json ] && [ -f /usr/src/app/install/package.json ]; then
+    echo "Copying package.json from install/ to root (likely missing due to bind mount)..."
+    cp /usr/src/app/install/package.json /usr/src/app/package.json
+  fi
+
   check_directory "$CONFIG_DIR"
   copy_or_link_files /usr/src/app "$CONFIG_DIR" "$PACKAGE_MANAGER"
   install_dependencies
