@@ -64,20 +64,28 @@ copy_or_link_files() {
   esac
 
   # Check if source and destination files are the same
-  if [ "$(realpath "$src_dir/package.json")" != "$(realpath "$dest_dir/package.json")" ] || [ "$OVERRIDE_UPDATE_LOCK" = true ]; then
-    cp "$src_dir/package.json" "$dest_dir/package.json"
+  if [ -f "$src_dir/package.json" ]; then
+    if [ "$(realpath "$src_dir/package.json" 2>/dev/null)" != "$(realpath "$dest_dir/package.json" 2>/dev/null)" ] || [ "$OVERRIDE_UPDATE_LOCK" = true ]; then
+      cp "$src_dir/package.json" "$dest_dir/package.json"
+    fi
   fi
 
-  if [ "$(realpath "$src_dir/$lock_file")" != "$(realpath "$dest_dir/$lock_file")" ] || [ "$OVERRIDE_UPDATE_LOCK" = true ]; then
-    cp "$src_dir/$lock_file" "$dest_dir/$lock_file"
+  if [ -f "$src_dir/$lock_file" ]; then
+    if [ "$(realpath "$src_dir/$lock_file" 2>/dev/null)" != "$(realpath "$dest_dir/$lock_file" 2>/dev/null)" ] || [ "$OVERRIDE_UPDATE_LOCK" = true ]; then
+      cp "$src_dir/$lock_file" "$dest_dir/$lock_file"
+    fi
   fi
 
   # Remove unnecessary lock files in src_dir
   rm -f "$src_dir/"{yarn.lock,package-lock.json,pnpm-lock.yaml,bun.lockb}
 
   # Symbolically link the copied files in src_dir to dest_dir
-  ln -fs "$dest_dir/package.json" "$src_dir/package.json"
-  ln -fs "$dest_dir/$lock_file" "$src_dir/$lock_file"
+  if [ -f "$dest_dir/package.json" ]; then
+    ln -fs "$dest_dir/package.json" "$src_dir/package.json"
+  fi
+  if [ -f "$dest_dir/$lock_file" ]; then
+    ln -fs "$dest_dir/$lock_file" "$src_dir/$lock_file"
+  fi
 }
 
 # Function to install dependencies using npm/yarn/pnpm
