@@ -47,6 +47,7 @@ copy_or_link_files() {
     yarn) lock_file="yarn.lock" ;;
     npm) lock_file="package-lock.json" ;;
     pnpm) lock_file="pnpm-lock.yaml" ;;
+    bun) lock_file="bun.lockb" ;;
     *)
       echo "Unknown package manager: $package_manager"
       exit 1
@@ -63,7 +64,7 @@ copy_or_link_files() {
   fi
 
   # Remove unnecessary lock files in src_dir
-  rm -f "$src_dir/"{yarn.lock,package-lock.json,pnpm-lock.yaml}
+  rm -f "$src_dir/"{yarn.lock,package-lock.json,pnpm-lock.yaml,bun.lockb}
 
   # Symbolically link the copied files in src_dir to dest_dir
   ln -fs "$dest_dir/package.json" "$src_dir/package.json"
@@ -83,6 +84,10 @@ install_dependencies() {
     } ;;
     pnpm) pnpm install || {
       echo "Failed to install dependencies with pnpm"
+      exit 1
+    } ;;
+    bun) bun install || {
+      echo "Failed to install dependencies with bun"
       exit 1
     } ;;
     *)
@@ -150,6 +155,12 @@ start_forum() {
         exit 1
       }
       ;;
+    bun)
+      bun run start -- --config="$config" --no-silent --no-daemon || {
+        echo "Failed to start forum with bun"
+        exit 1
+      }
+      ;;
     *)
       echo "Unknown package manager: $PACKAGE_MANAGER"
       exit 1
@@ -199,6 +210,10 @@ install_additional_plugins() {
         } ;;
         pnpm) pnpm add "${plugin}" || {
           echo "Failed to install plugin ${plugin} with pnpm"
+          exit 1
+        } ;;
+        bun) bun add "${plugin}" || {
+          echo "Failed to install plugin ${plugin} with bun"
           exit 1
         } ;;
         *)
