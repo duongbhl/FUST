@@ -8,7 +8,9 @@ services:
     environment:
       FORCE_RECREATE: 1
       PACKAGE_MANAGER: bun
+      NODE_ENV: production
       url: https://${DOMAIN:-localhost}
+      URL: https://${DOMAIN:-localhost}
     ports:
       - '4567:4567'
     volumes:

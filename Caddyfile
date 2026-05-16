@@ -4,6 +4,11 @@
 
 {$DOMAIN:localhost} {
 	# Reverse proxy all requests to the NodeBB container
-	# Caddy automatically handles WebSockets and X-Forwarded-* headers natively!
-	reverse_proxy nodebb:4567
+	reverse_proxy nodebb:4567 {
+		header_up Host {host}
+		header_up X-Real-IP {remote_host}
+		header_up X-Forwarded-For {remote_host}
+		header_up X-Forwarded-Proto {scheme}
+		header_up X-Forwarded-Port {port}
+	}
 }
