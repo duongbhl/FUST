@@ -43,6 +43,8 @@ RUN chmod +x /usr/local/bin/entrypoint.sh
 RUN mkdir -p /opt/config /usr/src/app/logs && \
     chown -R ${USER}:${USER} /opt/config /usr/src/app/logs
 
+USER root
+
 EXPOSE 4567
 
 # Use tini to handle signals and zombie processes
