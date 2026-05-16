@@ -18,7 +18,8 @@ RUN apk add --no-cache \
     libc-dev \
     git \
     tini \
-    bash
+    bash \
+    su-exec
 
 # Create a symbolic link for node to use bun runtime
 RUN ln -s /usr/local/bin/bun /usr/local/bin/node
@@ -38,8 +39,9 @@ RUN cp /usr/src/app/install/package.json /usr/src/app/package.json && \
 # Copy entrypoint script and make it executable
 COPY --chown=${USER}:${USER} ./install/docker/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
-
-USER ${USER}
+# Create necessary directories
+RUN mkdir -p /opt/config /usr/src/app/logs && \
+    chown -R ${USER}:${USER} /opt/config /usr/src/app/logs
 
 EXPOSE 4567
 

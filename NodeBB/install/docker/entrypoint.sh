@@ -2,6 +2,15 @@
 
 set -e
 
+# If running as root, fix permissions and re-run as nodebb user
+if [ "$(id -u)" = "0" ]; then
+  USER="${USER:-nodebb}"
+  CONFIG_DIR="${CONFIG_DIR:-/opt/config}"
+  echo "Running as root, fixing permissions for $USER..."
+  chown -R "$USER:$USER" /usr/src/app "$CONFIG_DIR"
+  exec su-exec "$USER" "$0" "$@"
+fi
+
 # Function to set default values for environment variables
 set_defaults() {
   export CONFIG_DIR="${CONFIG_DIR:-/opt/config}"
