@@ -2,6 +2,8 @@ services:
   traefik:
     image: traefik:v3.7.1
     restart: unless-stopped
+    environment:
+      - LETSENCRYPT_EMAIL: ${LETSENCRYPT_EMAIL}
     command:
       - --api.insecure=false
       - --providers.docker=true
@@ -9,7 +11,7 @@ services:
       - --entrypoints.web.address=:80
       - --entrypoints.websecure.address=:443
       - --certificatesresolvers.le.acme.tlschallenge=true
-      - --certificatesresolvers.le.acme.email=you@example.com
+      - --certificatesresolvers.le.acme.email=${LETSENCRYPT_EMAIL}
       - --certificatesresolvers.le.acme.storage=/acme.json
     ports:
       - '80:80'
