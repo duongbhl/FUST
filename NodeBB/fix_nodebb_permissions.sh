@@ -79,9 +79,11 @@ fi
 TRAEFIK_DIR="$DIR/traefik"
 ACME_FILE="$TRAEFIK_DIR/acme.json"
 mkdir -p "$TRAEFIK_DIR"
+if [ -d "$ACME_FILE" ]; then
+  rm -rf "$ACME_FILE"
+fi
 if [ ! -f "$ACME_FILE" ]; then
-  touch "$ACME_FILE"
-  echo "{}" > "$ACME_FILE" || true
+  : > "$ACME_FILE"
 fi
 chmod 600 "$ACME_FILE" || true
 if [ "$DO_CHOWN" -eq 1 ]; then

@@ -3,14 +3,18 @@ services:
     image: traefik:v3.7.1
     restart: unless-stopped
     environment:
-      - LETSENCRYPT_EMAIL: ${LETSENCRYPT_EMAIL}
+      LETSENCRYPT_EMAIL: ${LETSENCRYPT_EMAIL}
     command:
       - --api.insecure=false
+      - --log.level=DEBUG
+      - --accesslog=true
       - --providers.docker=true
       - --providers.docker.exposedbydefault=false
+      - --providers.docker.network=nodebb_traefik-public
       - --entrypoints.web.address=:80
       - --entrypoints.websecure.address=:443
-      - --certificatesresolvers.le.acme.tlschallenge=true
+      - --certificatesresolvers.le.acme.httpchallenge=true
+      - --certificatesresolvers.le.acme.httpchallenge.entrypoint=web
       - --certificatesresolvers.le.acme.email=${LETSENCRYPT_EMAIL}
       - --certificatesresolvers.le.acme.storage=/acme.json
     ports:
@@ -33,6 +37,7 @@ services:
       - "traefik.http.routers.nodebb.tls=true"
       - "traefik.http.routers.nodebb.tls.certresolver=le"
       - "traefik.http.services.nodebb.loadbalancer.server.port=4567"
+      - "traefik.docker.network=nodebb_traefik-public"
     volumes:
       - nodebb-build:/usr/src/app/build
       - nodebb-uploads:/usr/src/app/public/uploads
