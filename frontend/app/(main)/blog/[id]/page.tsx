@@ -16,7 +16,7 @@ export default function BlogDetailPage() {
         <div className="mt-10 flex items-center gap-4 border-b border-gray-200 pb-8">
           <div className="relative h-14 w-14 overflow-hidden rounded-full">
             <Image
-              src="/images/avatar-1.jpg"
+              src="/images/tải xuống.webp"
               alt="author"
               fill
               className="object-cover"
@@ -56,12 +56,7 @@ export default function BlogDetailPage() {
               <MessageSquare size={20} />
               <span>48</span>
             </div>
-          </div>
-
-          <div className="flex items-center gap-6 text-gray-700">
-            <Bookmark size={20} />
-            <Share2 size={20} />
-          </div>
+          </div> 
         </div>
       </Container>
     </main>

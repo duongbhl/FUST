@@ -4,7 +4,7 @@ export default function BlogHero() {
   return (
     <section className="relative h-[320px] overflow-hidden rounded-[32px] md:h-[480px]">
       <Image
-        src="/images/blog-detail.jpg"
+        src="/images/Hanoi-Restaurants.webp"
         alt="blog"
         fill
         className="object-cover"
@@ -29,7 +29,6 @@ export default function BlogHero() {
 
         <div className="flex items-center gap-5 text-sm md:text-base">
           <span>October 24, 2023</span>
-          <span>8 min read</span>
         </div>
       </div>
     </section>

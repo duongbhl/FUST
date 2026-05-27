@@ -1,8 +1,13 @@
 
+"use client";
+
 import { Crosshair, Plus, Minus, ChevronRight } from "lucide-react";
 import Header from "../_components/_common/Header";
+import { useLanguage } from "@/app/context/LanguageContext";
 
 export default function MapPage() {
+  const { t } = useLanguage();
+
   return (
     <main className="relative h-screen overflow-hidden bg-[#EEF1FA]">
       <Header />
@@ -23,7 +28,7 @@ export default function MapPage() {
                 An Nam Bistro
               </h3>
 
-              <p className="text-gray-500">45 Phố Lý Thường Kiệt</p>
+              <p className="text-gray-500">{t("map.restaurantAddress")}</p>
             </div>
           </div>
         </div>
@@ -36,11 +41,11 @@ export default function MapPage() {
 
             <div>
               <h3 className="text-2xl font-semibold text-gray-900">
-                12 Điểm đến Chay
+                {t("map.vegetarianDestinations")}
               </h3>
 
               <p className="text-gray-500">
-                Đã được Blog review tại Hà Nội
+                {t("map.blogReviewedInHanoi")}
               </p>
             </div>
           </div>

@@ -1,0 +1,41 @@
+{
+  "header": {
+    "brand": "FreshBite",
+    "blog": "Blog",
+    "restaurant": "Restaurant",
+    "searchPlaceholder": "Search experiences..."
+  },
+  "blog": {
+    "title": "Community Stories",
+    "subtitle": "Real experiences from local foodies and culinary explorers."
+  },
+  "createBlog": {
+    "title": "New Blog Post",
+    "subtitle": "Share your culinary expertise with the FreshBite community.",
+    "publishButton": "Publish Blog",
+    "blogTitle": "Blog Title",
+    "blogTitlePlaceholder": "Enter a catchy title for your recipe or review",
+    "address": "Address",
+    "addressPlaceholder": "Where did you discover this gem?",
+    "tags": "Tags",
+    "tagsPlaceholder": "Add tags (e.g., #Budget, #Quick, #FamilyFriendly)",
+    "content": "Content",
+    "contentPlaceholder": "Write your story...",
+    "image": "Image",
+    "required": "Required",
+    "clickToUpload": "Click to upload",
+    "file type": "Only image formats (jpg, png, webp) are accepted"
+  },
+  "map": {
+    "restaurantAddress": "45 Phố Lý Thường Kiệt",
+    "vegetarianDestinations": "12 Vegetarian Destinations",
+    "blogReviewedInHanoi": "Blog reviewed in Hanoi"
+  },
+  "language": {
+    "en": "English",
+    "vi": "Tiếng Việt",
+    "ja": "日本語",
+    "switch": "Language"
+  }
+}
+

@@ -1,6 +1,5 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Heart, Bookmark } from "lucide-react";
 import { Blog } from "@/types/blog";
 
 interface Props {
@@ -27,8 +26,6 @@ export default function BlogCard({ blog }: Props) {
           <span className="rounded-full bg-emerald-100 px-4 py-1 text-xs font-medium uppercase tracking-wide text-emerald-700">
             {blog.category}
           </span>
-
-          <span className="text-sm text-gray-500">{blog.readTime}</span>
         </div>
 
         <h3 className="line-clamp-2 text-2xl font-semibold text-gray-900">

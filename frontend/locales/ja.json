@@ -1,0 +1,40 @@
+{
+  "header": {
+    "brand": "FreshBite",
+    "blog": "ブログ",
+    "restaurant": "レストラン",
+    "searchPlaceholder": "グルメ体験を検索..."
+  },
+  "blog": {
+    "title": "コミュニティストーリー",
+    "subtitle": "食べることが大好きな人々や、ローカルグルメを探求する人たちのリアルな体験を紹介します。"
+  },
+  "createBlog": {
+    "title": "新しい記事を作成",
+    "subtitle": "あなたのグルメ体験や知識をFreshBiteコミュニティと共有しましょう。",
+    "publishButton": "投稿する",
+    "blogTitle": "タイトル",
+    "blogTitlePlaceholder": "レシピやレビューの魅力的なタイトルを入力してください",
+    "address": "場所",
+    "addressPlaceholder": "このスポットはどこで見つけましたか？",
+    "tags": "タグ",
+    "tagsPlaceholder": "タグを追加（例：#節約 #時短 #家族向け）",
+    "content": "内容",
+    "contentPlaceholder": "あなたのストーリーを書いてください...",
+    "image": "画像",
+    "required": "必須",
+    "clickToUpload": "クリックしてアップロード",
+    "file type": "画像形式のみ受け付けます (jpg, png, webp)"
+  },
+  "map": {
+    "restaurantAddress": "リートゥオンキエット通り45番地",
+    "vegetarianDestinations": "ベジタリアン向けスポット12件",
+    "blogReviewedInHanoi": "ハノイでレビュー済み"
+  },
+  "language": {
+    "en": "English",
+    "vi": "Tiếng Việt",
+    "ja": "日本語",
+    "switch": "言語"
+  }
+}

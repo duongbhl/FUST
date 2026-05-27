@@ -1,12 +1,17 @@
 
+"use client";
+
 import { blogs } from "@/data/blogs";
 import { Plus } from "lucide-react";
 import Header from "../_components/_common/Header";
 import Container from "../_components/_common/Cointainer";
 import BlogCard from "../_components/_blog/BlogCard";
 import Link from "next/link";
+import { useLanguage } from "@/app/context/LanguageContext";
 
 export default function BlogPage() {
+  const { t } = useLanguage();
+
   return (
     <main className="min-h-screen bg-[#F7F8FC] pb-24">
       <Header />
@@ -14,11 +19,11 @@ export default function BlogPage() {
       <Container className="pt-12">
         <div className="space-y-3">
           <h1 className="text-4xl font-bold text-gray-900 md:text-5xl">
-            Community Stories
+            {t("blog.title")}
           </h1>
 
           <p className="text-lg text-gray-500">
-            Real experiences from local foodies and culinary explorers.
+            {t("blog.subtitle")}
           </p>
         </div>
 

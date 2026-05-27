@@ -1,0 +1,40 @@
+{
+  "header": {
+    "brand": "FreshBite",
+    "blog": "Bài viết",
+    "restaurant": "Nhà hàng",
+    "searchPlaceholder": "Tìm kiếm trải nghiệm ẩm thực..."
+  },
+  "blog": {
+    "title": "Câu chuyện từ cộng đồng",
+    "subtitle": "Khám phá những trải nghiệm chân thực từ các tín đồ ẩm thực và những người đam mê khám phá món ngon địa phương."
+  },
+  "createBlog": {
+    "title": "Tạo bài viết mới",
+    "subtitle": "Chia sẻ trải nghiệm và hiểu biết ẩm thực của bạn với cộng đồng FreshBite.",
+    "publishButton": "Đăng bài",
+    "blogTitle": "Tiêu đề",
+    "blogTitlePlaceholder": "Nhập tiêu đề hấp dẫn cho bài viết hoặc review của bạn",
+    "address": "Địa điểm",
+    "addressPlaceholder": "Bạn đã khám phá địa điểm này ở đâu?",
+    "tags": "Thẻ",
+    "tagsPlaceholder": "Thêm thẻ (ví dụ: #TiếtKiệm, #NhanhGọn, #GiaĐình)",
+    "content": "Nội dung",
+    "contentPlaceholder": "Viết câu chuyện của bạn...",
+    "image": "Hình ảnh",
+    "required": "Bắt buộc",
+    "clickToUpload": "Nhấp để tải lên",
+    "file type": "Chỉ chấp nhận định dạng hình ảnh (jpg, png, webp)"
+  },
+  "map": {
+    "restaurantAddress": "45 Phố Lý Thường Kiệt",
+    "vegetarianDestinations": "12 địa điểm ăn chay",
+    "blogReviewedInHanoi": "Đã được review tại Hà Nội"
+  },
+  "language": {
+    "en": "English",
+    "vi": "Tiếng Việt",
+    "ja": "日本語",
+    "switch": "Ngôn ngữ"
+  }
+}
