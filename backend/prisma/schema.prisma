@@ -1,0 +1,297 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum RoleName {
+  USER
+  MODERATOR
+  ADMIN
+}
+
+enum PriceRange {
+  CHEAP
+  MODERATE
+  EXPENSIVE
+  LUXURY
+}
+
+enum VoteType {
+  LIKE
+}
+
+enum NotificationType {
+  COMMENT
+  REPLY
+  VOTE
+  FAVORITE
+  POST_APPROVED
+  SYSTEM
+}
+
+model Role {
+  id          String    @id @default(uuid()) @db.Uuid
+  name        RoleName  @unique
+  description String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+  users       User[]
+
+  @@index([deletedAt])
+}
+
+model User {
+  id               String         @id @default(uuid()) @db.Uuid
+  email            String         @unique
+  passwordHash     String?
+  googleId         String?        @unique
+  name             String
+  bio              String?
+  avatarUrl        String?
+  roleId           String         @db.Uuid
+  refreshTokenHash String?
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+  deletedAt        DateTime?
+  role             Role           @relation(fields: [roleId], references: [id])
+  restaurants      Restaurant[]   @relation("RestaurantCreatedBy")
+  posts            Post[]         @relation("PostAuthor")
+  comments         Comment[]      @relation("CommentAuthor")
+  votes            Vote[]
+  favorites        Favorite[]
+  notifications    Notification[] @relation("NotificationRecipient")
+  actions          Notification[] @relation("NotificationActor")
+
+  @@index([roleId])
+  @@index([email, deletedAt])
+  @@index([deletedAt])
+}
+
+model Category {
+  id          String       @id @default(uuid()) @db.Uuid
+  name        String       @unique
+  slug        String       @unique
+  description String?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  deletedAt   DateTime?
+  restaurants Restaurant[]
+  posts       Post[]
+
+  @@index([slug])
+  @@index([deletedAt])
+}
+
+model Restaurant {
+  id          String      @id @default(uuid()) @db.Uuid
+  name        String
+  slug        String      @unique
+  description String?
+  address     String
+  area        String?
+  city        String?
+  latitude    Decimal?    @db.Decimal(10, 7)
+  longitude   Decimal?    @db.Decimal(10, 7)
+  phone       String?
+  website     String?
+  priceRange  PriceRange  @default(MODERATE)
+  ratingAvg   Decimal     @default(0) @db.Decimal(3, 2)
+  ratingCount Int         @default(0)
+  coverImage  String?
+  categoryId  String?     @db.Uuid
+  createdById String?     @db.Uuid
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  deletedAt   DateTime?
+  category    Category?   @relation(fields: [categoryId], references: [id])
+  createdBy   User?       @relation("RestaurantCreatedBy", fields: [createdById], references: [id])
+  images      RestaurantImage[]
+  posts       Post[]
+
+  @@index([slug])
+  @@index([name])
+  @@index([area])
+  @@index([city])
+  @@index([priceRange])
+  @@index([ratingAvg])
+  @@index([categoryId])
+  @@index([deletedAt])
+}
+
+model RestaurantImage {
+  id           String     @id @default(uuid()) @db.Uuid
+  restaurantId String     @db.Uuid
+  url          String
+  publicId     String?
+  alt          String?
+  position     Int        @default(0)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  deletedAt    DateTime?
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+
+  @@index([restaurantId, position])
+  @@index([deletedAt])
+}
+
+model Post {
+  id           String         @id @default(uuid()) @db.Uuid
+  title        String
+  slug         String         @unique
+  excerpt      String?
+  content      String         @db.Text
+  rating       Int
+  readTime     String?
+  published    Boolean        @default(true)
+  authorId     String         @db.Uuid
+  restaurantId String?        @db.Uuid
+  categoryId   String?        @db.Uuid
+  viewCount    Int            @default(0)
+  likeCount    Int            @default(0)
+  commentCount Int            @default(0)
+  favoriteCount Int           @default(0)
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  deletedAt    DateTime?
+  author       User           @relation("PostAuthor", fields: [authorId], references: [id])
+  restaurant   Restaurant?    @relation(fields: [restaurantId], references: [id])
+  category     Category?      @relation(fields: [categoryId], references: [id])
+  images       PostImage[]
+  comments     Comment[]
+  votes        Vote[]
+  favorites    Favorite[]
+  tags         PostTag[]
+  notifications Notification[]
+
+  @@index([slug])
+  @@index([authorId])
+  @@index([restaurantId])
+  @@index([categoryId])
+  @@index([published, deletedAt, createdAt])
+  @@index([rating])
+  @@index([likeCount])
+  @@index([viewCount])
+  @@index([deletedAt])
+}
+
+model PostImage {
+  id        String    @id @default(uuid()) @db.Uuid
+  postId    String    @db.Uuid
+  url       String
+  publicId  String?
+  alt       String?
+  position  Int       @default(0)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+  post      Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@index([postId, position])
+  @@index([deletedAt])
+}
+
+model Comment {
+  id          String         @id @default(uuid()) @db.Uuid
+  postId      String         @db.Uuid
+  authorId    String         @db.Uuid
+  parentId    String?        @db.Uuid
+  content     String         @db.Text
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  deletedAt   DateTime?
+  post        Post           @relation(fields: [postId], references: [id], onDelete: Cascade)
+  author      User           @relation("CommentAuthor", fields: [authorId], references: [id])
+  parent      Comment?       @relation("CommentReplies", fields: [parentId], references: [id])
+  replies     Comment[]      @relation("CommentReplies")
+  notifications Notification[]
+
+  @@index([postId, createdAt])
+  @@index([authorId])
+  @@index([parentId])
+  @@index([deletedAt])
+}
+
+model Vote {
+  id        String    @id @default(uuid()) @db.Uuid
+  userId    String    @db.Uuid
+  postId    String    @db.Uuid
+  type      VoteType  @default(LIKE)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post      Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, postId])
+  @@index([postId])
+  @@index([deletedAt])
+}
+
+model Favorite {
+  id        String    @id @default(uuid()) @db.Uuid
+  userId    String    @db.Uuid
+  postId    String    @db.Uuid
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post      Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, postId])
+  @@index([postId])
+  @@index([deletedAt])
+}
+
+model Tag {
+  id        String    @id @default(uuid()) @db.Uuid
+  name      String    @unique
+  slug      String    @unique
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+  posts     PostTag[]
+
+  @@index([slug])
+  @@index([deletedAt])
+}
+
+model PostTag {
+  postId    String   @db.Uuid
+  tagId     String   @db.Uuid
+  createdAt DateTime @default(now())
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  tag       Tag      @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([postId, tagId])
+  @@index([tagId])
+}
+
+model Notification {
+  id          String           @id @default(uuid()) @db.Uuid
+  recipientId String           @db.Uuid
+  actorId     String?          @db.Uuid
+  type        NotificationType
+  title       String
+  message     String
+  readAt      DateTime?
+  postId      String?          @db.Uuid
+  commentId   String?          @db.Uuid
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  deletedAt   DateTime?
+  recipient   User             @relation("NotificationRecipient", fields: [recipientId], references: [id], onDelete: Cascade)
+  actor       User?            @relation("NotificationActor", fields: [actorId], references: [id], onDelete: SetNull)
+  post        Post?            @relation(fields: [postId], references: [id], onDelete: SetNull)
+  comment     Comment?         @relation(fields: [commentId], references: [id], onDelete: SetNull)
+
+  @@index([recipientId, readAt, createdAt])
+  @@index([actorId])
+  @@index([postId])
+  @@index([commentId])
+  @@index([deletedAt])
+}

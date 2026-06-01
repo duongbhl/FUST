@@ -1,11 +1,13 @@
 "use client";
 
-import React, { createContext, useContext, useState, ReactNode, useEffect } from "react";
+import React, { createContext, useContext, useState, ReactNode } from "react";
 import enTranslations from "@/locales/en.json";
 import viTranslations from "@/locales/vi.json";
 import jaTranslations from "@/locales/ja.json";
 
 type Language = "en" | "vi" | "ja";
+type TranslationValue = string | { [key: string]: TranslationValue };
+type TranslationTree = Record<string, TranslationValue>;
 
 interface LanguageContextType {
   language: Language;
@@ -15,22 +17,20 @@ interface LanguageContextType {
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
-const translations: Record<Language, any> = {
+const translations: Record<Language, TranslationTree> = {
   en: enTranslations,
   vi: viTranslations,
   ja: jaTranslations,
 };
 
-export function LanguageProvider({ children }: { children: ReactNode }) {
-  const [language, setLanguageState] = useState<Language>("en");
+function getInitialLanguage(): Language {
+  if (typeof window === "undefined") return "en";
+  const savedLanguage = localStorage.getItem("language");
+  return savedLanguage === "en" || savedLanguage === "vi" || savedLanguage === "ja" ? savedLanguage : "en";
+}
 
-  useEffect(() => {
-    // Load language from localStorage on mount
-    const savedLanguage = localStorage.getItem("language") as Language | null;
-    if (savedLanguage && (savedLanguage === "en" || savedLanguage === "vi" || savedLanguage === "ja")) {
-      setLanguageState(savedLanguage);
-    }
-  }, []);
+export function LanguageProvider({ children }: { children: ReactNode }) {
+  const [language, setLanguageState] = useState<Language>(getInitialLanguage);
 
   const setLanguage = (lang: Language) => {
     setLanguageState(lang);
@@ -39,24 +39,20 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
 
   const t = (key: string): string => {
     const keys = key.split(".");
-    let value: any = translations[language];
+    let value: TranslationValue | undefined = translations[language];
 
-    for (const k of keys) {
-      if (value && typeof value === "object" && k in value) {
-        value = value[k];
+    for (const item of keys) {
+      if (value && typeof value === "object" && item in value) {
+        value = value[item];
       } else {
-        return key; // Return the key if translation not found
+        return key;
       }
     }
 
     return typeof value === "string" ? value : key;
   };
 
-  return (
-    <LanguageContext.Provider value={{ language, setLanguage, t }}>
-      {children}
-    </LanguageContext.Provider>
-  );
+  return <LanguageContext.Provider value={{ language, setLanguage, t }}>{children}</LanguageContext.Provider>;
 }
 
 export function useLanguage() {
