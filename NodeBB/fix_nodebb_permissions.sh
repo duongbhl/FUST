@@ -117,9 +117,9 @@ fi
 
 echo "Stopping and recreating compose services using: ${DCMD[*]}"
 "${DCMD[@]}" down || true
-"${DCMD[@]}" up -d --force-recreate
+"${DCMD[@]}" up -d --build --force-recreate
 echo "Recreated services. Showing last 200 lines of nodebb logs:"
 "${DCMD[@]}" logs nodebb --tail=200 || true
 
 echo "Done. If you prefer host bind mounts instead of named volumes, run:"
-echo "  sudo chown -R <UID>:<GID> $DIR/.docker/config $DIR/.docker/build $DIR/.docker/public/uploads"
+echo "  sudo chown -R <UID>:<GID> $DIR/.docker/public/uploads"

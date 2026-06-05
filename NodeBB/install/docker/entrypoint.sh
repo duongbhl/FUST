@@ -2,6 +2,9 @@
 
 set -e
 
+# Set umask to 000 to ensure all created files/directories are writable by any user/container
+umask 000
+
 # Function to set default values for environment variables
 set_defaults() {
   export CONFIG_DIR="${CONFIG_DIR:-/opt/config}"
