@@ -25,16 +25,18 @@ bak="$COMPOSE_FILE.bak.$(date +%s)"
 cp -p "$COMPOSE_FILE" "$bak"
 echo "Backed up $COMPOSE_FILE -> $bak"
 
-# Ensure expected bind-mount directories exist for databases
+# Ensure expected bind-mount directories exist for databases and uploads
 mkdir -p "$DIR/.docker/database/mongo/data" \
   "$DIR/.docker/database/redis" \
-  "$DIR/.docker/database/postgresql/data"
-echo "Ensured database directories under $DIR/.docker/database/"
+  "$DIR/.docker/database/postgresql/data" \
+  "$DIR/.docker/public/uploads"
+chmod 777 "$DIR/.docker/public/uploads" || true
+echo "Ensured database and uploads directories exist"
 
 # Remove driver_opts blocks under target volumes by parsing indentation
 awk '
 BEGIN {
-  targets["nodebb-config"]=1; targets["nodebb-build"]=1; targets["nodebb-uploads"]=1;
+  targets["nodebb-config"]=1; targets["nodebb-build"]=1;
   in_volumes=0; cur_vol=""; skip=0; skip_indent=0;
 }
 {
@@ -78,6 +80,7 @@ if [ "$DO_CHOWN" -eq 1 ]; then
     TARGET_UID=$(id -u); TARGET_GID=$(id -g)
   fi
   sudo chown -R "$TARGET_UID:$TARGET_GID" "$DIR/.docker/config" "$DIR/.docker/build" "$DIR/.docker/public/uploads" || true
+  sudo chmod -R 777 "$DIR/.docker/public/uploads" || true
   sudo chown -R "$TARGET_UID:$TARGET_GID" \
     "$DIR/.docker/database/mongo" \
     "$DIR/.docker/database/redis" \

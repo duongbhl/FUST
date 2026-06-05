@@ -104,8 +104,9 @@ build_forum() {
   local config="$1"
   local start_build="$2"
   local package_hash=$(md5sum install/package.json | head -c 32)
-  if [ "$package_hash" != "$(cat $CONFIG_DIR/install_hash.md5 || true)" ]; then
-      echo "package.json was updated. Upgrading..."
+  local node_modules_hash_file="/usr/src/app/node_modules/.install_hash.md5"
+  if [ "$package_hash" != "$(cat $CONFIG_DIR/install_hash.md5 || true)" ] || [ "$package_hash" != "$(cat "$node_modules_hash_file" || true)" ]; then
+      echo "package.json was updated or node_modules is fresh. Upgrading..."
       /usr/src/app/nodebb upgrade --config="$config" || {
           echo "Failed to build NodeBB. Exiting..."
           exit 1
@@ -121,6 +122,7 @@ build_forum() {
     return
   fi
   echo -n $package_hash > $CONFIG_DIR/install_hash.md5
+  echo -n $package_hash > "$node_modules_hash_file" || true
 }
 
 
@@ -214,6 +216,11 @@ install_additional_plugins() {
 main() {
   set_defaults
   check_directory "$CONFIG_DIR"
+  check_directory "/usr/src/app/public/uploads"
+  mkdir -p /usr/src/app/public/uploads/category \
+           /usr/src/app/public/uploads/system \
+           /usr/src/app/public/uploads/files \
+           /usr/src/app/public/uploads/profile
   copy_or_link_files /usr/src/app "$CONFIG_DIR" "$PACKAGE_MANAGER"
   install_dependencies
 
