@@ -50,8 +50,8 @@ WORKDIR /usr/src/app/
 RUN corepack enable \
     && groupadd --gid ${GID} ${USER} \
     && useradd --uid ${UID} --gid ${GID} --home-dir /usr/src/app/ --shell /bin/bash ${USER} \
-    && mkdir -p /usr/src/app/logs/ /opt/config/ \
-    && chown -R ${USER}:${USER} /usr/src/app/ /opt/config/
+    && mkdir -p /usr/src/app/logs/ /opt/config/ /usr/src/app/public/uploads/ \
+    && chown -R ${USER}:${USER} /usr/src/app/ /opt/config/ /usr/src/app/public/uploads/
 
 COPY --from=build --chown=${USER}:${USER} /usr/src/app/ /usr/src/app/install/docker/setup.json /usr/src/app/
 COPY --from=build --chown=${USER}:${USER} /usr/bin/tini /usr/src/app/install/docker/entrypoint.sh /usr/local/bin/

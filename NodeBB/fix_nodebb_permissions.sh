@@ -79,7 +79,7 @@ if [ "$DO_CHOWN" -eq 1 ]; then
   else
     TARGET_UID=$(id -u); TARGET_GID=$(id -g)
   fi
-  sudo chown -R "$TARGET_UID:$TARGET_GID" "$DIR/.docker/config" "$DIR/.docker/build" "$DIR/.docker/public/uploads" || true
+  sudo chown -R "$TARGET_UID:$TARGET_GID" "$DIR/.docker/public/uploads" || true
   sudo chmod -R 777 "$DIR/.docker/public/uploads" || true
   sudo chown -R "$TARGET_UID:$TARGET_GID" \
     "$DIR/.docker/database/mongo" \
