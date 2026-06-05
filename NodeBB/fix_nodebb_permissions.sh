@@ -25,6 +25,12 @@ bak="$COMPOSE_FILE.bak.$(date +%s)"
 cp -p "$COMPOSE_FILE" "$bak"
 echo "Backed up $COMPOSE_FILE -> $bak"
 
+# Ensure expected bind-mount directories exist for databases
+mkdir -p "$DIR/.docker/database/mongo/data" \
+  "$DIR/.docker/database/redis" \
+  "$DIR/.docker/database/postgresql/data"
+echo "Ensured database directories under $DIR/.docker/database/"
+
 # Remove driver_opts blocks under target volumes by parsing indentation
 awk '
 BEGIN {
@@ -72,6 +78,10 @@ if [ "$DO_CHOWN" -eq 1 ]; then
     TARGET_UID=$(id -u); TARGET_GID=$(id -g)
   fi
   sudo chown -R "$TARGET_UID:$TARGET_GID" "$DIR/.docker/config" "$DIR/.docker/build" "$DIR/.docker/public/uploads" || true
+  sudo chown -R "$TARGET_UID:$TARGET_GID" \
+    "$DIR/.docker/database/mongo" \
+    "$DIR/.docker/database/redis" \
+    "$DIR/.docker/database/postgresql" || true
   echo "chown completed (if paths existed)"
 fi
 

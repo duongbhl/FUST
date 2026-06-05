@@ -50,8 +50,9 @@ services:
   mongo:
     image: 'mongo:7-jammy'
     restart: unless-stopped
-    ports:
-      - '27017:27017'
+    # Limit RAM usage to avoid host OOM on small instances
+    mem_limit: 512m
+    command: ["mongod", "--wiredTigerCacheSizeGB", "0.25"]
     environment:
       MONGO_INITDB_ROOT_USERNAME: nodebb
       MONGO_INITDB_ROOT_PASSWORD: nodebb
