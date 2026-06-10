@@ -1,0 +1,12 @@
+{
+  "id": "nodebb-plugin-openstreetmap",
+  "name": "OpenStreetMap Integration",
+  "description": "Add a Leaflet map picker button to the post composer",
+  "library": "./library.js",
+  "hooks": [
+    { "hook": "static:app.load", "method": "init" }
+  ],
+  "scripts": [
+    "static/client.js"
+  ]
+}

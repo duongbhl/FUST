@@ -1,2 +1,8 @@
 .env
 acme.json
+
+*.png
+*.jpeg
+*.jpg
+*.webp
+*.svg

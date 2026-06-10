@@ -1,0 +1,7 @@
+{
+  "name": "nodebb-plugin-openstreetmap",
+  "version": "1.0.0",
+  "description": "NodeBB plugin for Leaflet OpenStreetMap integration",
+  "main": "library.js",
+  "dependencies": {}
+}

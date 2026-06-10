@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bản đồ địa điểm ăn uống - FUST</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    
+    <style>
+        :root {
+            --primary: #ff4757;
+            --primary-hover: #ff6b81;
+            --bg-dark: #1e272e;
+            --bg-panel: rgba(30, 39, 46, 0.85);
+            --text-light: #f1f2f6;
+            --text-muted: #a4b0be;
+            --border-color: rgba(255, 255, 255, 0.1);
+            --radius: 16px;
+            --shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body, html {
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+        }
+
+        #map {
+            height: 100%;
+            width: 100%;
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            z-index: 1;
+        }
+
+        /* Glassmorphism Controls Panel */
+        .control-panel {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+            width: 380px;
+            max-width: calc(100% - 40px);
+            background: var(--bg-panel);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            transition: var(--transition);
+        }
+
+        .panel-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .panel-header i {
+            font-size: 24px;
+            color: var(--primary);
+        }
+
+        .panel-header h1 {
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .search-container {
+            position: relative;
+            display: flex;
+            gap: 8px;
+        }
+
+        .search-input {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 12px 16px;
+            color: var(--text-light);
+            font-size: 14px;
+            outline: none;
+            transition: var(--transition);
+        }
+
+        .search-input:focus {
+            border-color: var(--primary);
+            background: rgba(255, 255, 255, 0.12);
+            box-shadow: 0 0 0 3px rgba(255, 71, 87, 0.2);
+        }
+
+        .search-btn {
+            background: var(--primary);
+            border: none;
+            border-radius: 12px;
+            width: 46px;
+            height: 46px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .search-btn:hover {
+            background: var(--primary-hover);
+            transform: translateY(-1px);
+        }
+
+        /* Suggestions dropdown */
+        .suggestions {
+            position: absolute;
+            top: 52px;
+            left: 0;
+            right: 0;
+            background: #2f3640;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1001;
+            box-shadow: var(--shadow);
+            display: none;
+        }
+
+        .suggestion-item {
+            padding: 12px 16px;
+            font-size: 13px;
+            cursor: pointer;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            transition: var(--transition);
+        }
+
+        .suggestion-item:last-child {
+            border-bottom: none;
+        }
+
+        .suggestion-item:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--primary);
+        }
+
+        .info-box {
+            background: rgba(255, 255, 255, 0.04);
+            border-radius: 12px;
+            padding: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .info-label {
+            font-size: 12px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+
+        .info-value {
+            font-size: 14px;
+            font-weight: 500;
+            line-height: 1.5;
+            color: var(--text-light);
+            word-break: break-word;
+        }
+
+        .confirm-btn {
+            width: 100%;
+            background: var(--primary);
+            border: none;
+            border-radius: 12px;
+            padding: 14px;
+            color: white;
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: var(--transition);
+        }
+
+        .confirm-btn:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 71, 87, 0.3);
+        }
+
+        .confirm-btn:active {
+            transform: translateY(0);
+        }
+
+        /* Leaflet controls custom styles */
+        .leaflet-bar {
+            border: 1px solid var(--border-color) !important;
+            box-shadow: var(--shadow) !important;
+            border-radius: 12px !important;
+            overflow: hidden;
+        }
+
+        .leaflet-bar a {
+            background-color: var(--bg-panel) !important;
+            color: var(--text-light) !important;
+            border-bottom: 1px solid var(--border-color) !important;
+            transition: var(--transition);
+        }
+
+        .leaflet-bar a:hover {
+            background-color: var(--bg-dark) !important;
+            color: var(--primary) !important;
+        }
+
+        .leaflet-container {
+            background: var(--bg-dark) !important;
+        }
+
+        /* Custom Popup styling */
+        .leaflet-popup-content-wrapper {
+            background: var(--bg-panel) !important;
+            color: var(--text-light) !important;
+            border: 1px solid var(--border-color) !important;
+            backdrop-filter: blur(12px);
+            border-radius: 12px !important;
+            box-shadow: var(--shadow) !important;
+        }
+
+        .leaflet-popup-tip {
+            background: var(--bg-panel) !important;
+            border: 1px solid var(--border-color) !important;
+        }
+
+        .popup-title {
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 4px;
+        }
+
+        .popup-desc {
+            font-size: 12px;
+            line-height: 1.4;
+            color: var(--text-light);
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .control-panel {
+                top: auto;
+                bottom: 20px;
+                left: 10px;
+                right: 10px;
+                width: calc(100% - 20px);
+                padding: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="map"></div>
+
+    <div class="control-panel" id="panel">
+        <div class="panel-header">
+            <i class="fa-solid fa-map-location-dot"></i>
+            <h1 id="panel-title">Chọn vị trí nhà hàng</h1>
+        </div>
+
+        <div class="search-container" id="search-box">
+            <input type="text" id="search-input" class="search-input" placeholder="Tìm kiếm địa chỉ tại Hà Nội...">
+            <button class="search-btn" id="search-btn">
+                <i class="fa-solid fa-magnifying-glass"></i>
+            </button>
+            <div class="suggestions" id="suggestions"></div>
+        </div>
+
+        <div class="info-box">
+            <div class="info-label"><i class="fa-solid fa-location-dot"></i> Địa chỉ đã chọn</div>
+            <div class="info-value" id="location-address">Click vào bản đồ hoặc tìm kiếm để chọn vị trí...</div>
+        </div>
+
+        <button class="confirm-btn" id="confirm-btn">
+            <i class="fa-solid fa-circle-check"></i> Xác nhận vị trí này
+        </button>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    
+    <script>
+        // --- CẤU HÌNH GIỚI HẠN KHU VỰC BẢN ĐỒ ---
+        // Ở đây chúng ta giới hạn bản đồ trong khu vực Hà Nội.
+        // Bạn có thể đổi sang khu vực khác bằng cách điều chỉnh các tọa độ dưới đây.
+        // South-West (Tây Nam): [Vĩ độ, Kinh độ]
+        // North-East (Đông Bắc): [Vĩ độ, Kinh độ]
+        const REGION_BOUNDS = L.latLngBounds(
+            [20.70, 105.40], // SW corner (Sơn Tây, Ba Vì, Mỹ Đức...)
+            [21.40, 106.10]  // NE corner (Sóc Sơn, Đông Anh, Gia Lâm...)
+        );
+
+        const DEFAULT_CENTER = [21.0285, 105.8542]; // Tọa độ trung tâm (Hồ Gươm, Hà Nội)
+        const MIN_ZOOM = 10; // Giới hạn zoom nhỏ nhất (không cho zoom ra quá rộng)
+        const MAX_ZOOM = 18; // Giới hạn zoom lớn nhất
+        
+        // Khởi tạo bản đồ với các giới hạn khu vực
+        const map = L.map('map', {
+            center: DEFAULT_CENTER,
+            zoom: 13,
+            minZoom: MIN_ZOOM,
+            maxZoom: MAX_ZOOM,
+            maxBounds: REGION_BOUNDS,
+            maxBoundsViscosity: 1.0 // Ngăn chặn hoàn toàn việc kéo bản đồ ra ngoài ranh giới
+        });
+
+        // Thêm layer bản đồ nền OpenStreetMap
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        let selectedMarker = null;
+        let currentLatLng = null;
+        let currentAddress = "";
+
+        // Đọc tham số từ URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const mode = urlParams.get('mode'); // 'pick' hoặc null
+        const paramLat = parseFloat(urlParams.get('lat'));
+        const paramLng = parseFloat(urlParams.get('lng'));
+        const paramAddress = urlParams.get('address');
+
+        const isPickMode = (mode === 'pick');
+
+        // Điều chỉnh giao diện dựa trên chế độ
+        if (!isPickMode) {
+            // Chế độ xem (View Mode)
+            document.getElementById('panel-title').innerText = "Vị trí địa điểm";
+            document.getElementById('search-box').style.display = "none";
+            document.getElementById('confirm-btn').style.display = "none";
+
+            if (!isNaN(paramLat) && !isNaN(paramLng)) {
+                const targetLatLng = L.latLng(paramLat, paramLng);
+                
+                // Đặt marker và di chuyển bản đồ tới tọa độ được truyền
+                setMarker(targetLatLng, paramAddress || "Địa điểm ăn uống");
+                map.setView(targetLatLng, 16);
+            } else {
+                document.getElementById('location-address').innerText = "Không tìm thấy tọa độ địa điểm hợp lệ.";
+            }
+        } else {
+            // Chế độ chọn (Pick Mode)
+            document.getElementById('panel-title').innerText = "Chọn vị trí cửa hàng";
+            
+            // Lắng nghe sự kiện click trên map để chọn điểm
+            map.on('click', function(e) {
+                // Đảm bảo điểm click nằm trong ranh giới cho phép
+                if (REGION_BOUNDS.contains(e.latlng)) {
+                    reverseGeocode(e.latlng);
+                } else {
+                    alert("Vui lòng chọn vị trí bên trong khu vực Hà Nội!");
+                }
+            });
+        }
+
+        // Tạo/Cập nhật marker
+        function setMarker(latlng, addressText) {
+            currentLatLng = latlng;
+            currentAddress = addressText;
+            
+            document.getElementById('location-address').innerText = addressText;
+
+            if (selectedMarker) {
+                selectedMarker.setLatLng(latlng);
+            } else {
+                selectedMarker = L.marker(latlng, {
+                    draggable: isPickMode
+                }).addTo(map);
+
+                if (isPickMode) {
+                    selectedMarker.on('dragend', function(e) {
+                        const markerLatLng = selectedMarker.getLatLng();
+                        if (REGION_BOUNDS.contains(markerLatLng)) {
+                            reverseGeocode(markerLatLng);
+                        } else {
+                            // Trả về vị trí cũ nếu kéo ra ngoài
+                            selectedMarker.setLatLng(currentLatLng);
+                            alert("Không thể kéo marker ra ngoài khu vực Hà Nội!");
+                        }
+                    });
+                }
+            }
+
+            const popupContent = `
+                <div class="popup-title"><i class="fa-solid fa-utensils"></i> Vị trí được chọn</div>
+                <div class="popup-desc">${addressText}</div>
+            `;
+            selectedMarker.bindPopup(popupContent).openPopup();
+        }
+
+        // Tìm kiếm địa chỉ bằng Nominatim API (có giới hạn trong khu vực REGION_BOUNDS)
+        async function searchLocation(query) {
+            if (!query.trim()) return;
+            
+            // Giới hạn tìm kiếm trong viewbox của Hà Nội để chính xác
+            const viewbox = `${REGION_BOUNDS.getWest()},${REGION_BOUNDS.getSouth()},${REGION_BOUNDS.getEast()},${REGION_BOUNDS.getNorth()}`;
+            const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&viewbox=${viewbox}&bounded=1&limit=5&accept-language=vi`;
+
+            try {
+                const response = await fetch(url, {
+                    headers: {
+                        'User-Agent': 'FUST-Forum-Food-Map'
+                    }
+                });
+                const data = await response.json();
+                
+                const suggestionsContainer = document.getElementById('suggestions');
+                suggestionsContainer.innerHTML = "";
+                
+                if (data.length === 0) {
+                    suggestionsContainer.style.display = "none";
+                    alert("Không tìm thấy địa điểm nào phù hợp trong khu vực giới hạn.");
+                    return;
+                }
+
+                data.forEach(item => {
+                    const div = document.createElement('div');
+                    div.className = 'suggestion-item';
+                    div.innerText = item.display_name;
+                    div.onclick = function() {
+                        const latlng = L.latLng(parseFloat(item.lat), parseFloat(item.lon));
+                        setMarker(latlng, item.display_name);
+                        map.setView(latlng, 16);
+                        suggestionsContainer.style.display = "none";
+                        document.getElementById('search-input').value = item.display_name;
+                    };
+                    suggestionsContainer.appendChild(div);
+                });
+                
+                suggestionsContainer.style.display = "block";
+            } catch (err) {
+                console.error("Search error:", err);
+            }
+        }
+
+        // Lấy địa chỉ từ tọa độ (Reverse Geocoding)
+        async function reverseGeocode(latlng) {
+            const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latlng.lat}&lon=${latlng.lng}&zoom=18&addressdetails=1&accept-language=vi`;
+            
+            setMarker(latlng, "Đang lấy địa chỉ...");
+
+            try {
+                const response = await fetch(url, {
+                    headers: {
+                        'User-Agent': 'FUST-Forum-Food-Map'
+                    }
+                });
+                const data = await response.json();
+                const address = data.display_name || `${latlng.lat.toFixed(5)}, ${latlng.lng.toFixed(5)}`;
+                setMarker(latlng, address);
+            } catch (err) {
+                console.error("Reverse geocode error:", err);
+                setMarker(latlng, `Tọa độ: ${latlng.lat.toFixed(5)}, ${latlng.lng.toFixed(5)}`);
+            }
+        }
+
+        // Sự kiện nút Tìm kiếm
+        document.getElementById('search-btn').onclick = function() {
+            searchLocation(document.getElementById('search-input').value);
+        };
+        
+        document.getElementById('search-input').onkeydown = function(e) {
+            if (e.key === 'Enter') {
+                searchLocation(this.value);
+            }
+        };
+
+        // Đóng suggestions khi click ra ngoài
+        document.addEventListener('click', function(e) {
+            if (!document.getElementById('search-box').contains(e.target)) {
+                document.getElementById('suggestions').style.display = "none";
+            }
+        });
+
+        // Sự kiện nút Xác nhận (chỉ hoạt động ở Pick Mode)
+        document.getElementById('confirm-btn').onclick = function() {
+            if (!currentLatLng) {
+                alert("Vui lòng chọn một vị trí trên bản đồ trước!");
+                return;
+            }
+
+            // Gửi dữ liệu về cửa sổ cha (Composer)
+            if (window.opener) {
+                window.opener.postMessage({
+                    type: 'map-location-selected',
+                    lat: currentLatLng.lat,
+                    lng: currentLatLng.lng,
+                    address: currentAddress
+                }, window.location.origin);
+                
+                // Đóng popup
+                window.close();
+            } else {
+                alert("Không tìm thấy cửa sổ soạn thảo. Hãy đảm bảo bạn mở bản đồ này từ khung viết bài viết.");
+            }
+        };
+    </script>
+</body>
+</html>
